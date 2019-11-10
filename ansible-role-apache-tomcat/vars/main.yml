@@ -1,0 +1,7 @@
+---
+# vars file for ansible-role-apache-tomcat
+
+ java_package: "java-1.8.0-openjdk.x86_64"
+ TOMCAT_HOME: "/opt/tomcat/"
+ JAVA_HOME: "/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.222.b10-1.el7_7.x86_64/jre/bin/"
+ abc: "http://apachemirror.wuchna.com/tomcat/tomcat-8/v8.5.45/bin/apache-tomcat-8.5.45.tar.gz"

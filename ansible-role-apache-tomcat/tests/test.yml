@@ -1,0 +1,6 @@
+---
+- hosts: suse
+  remote_user: ayush
+  become: yes
+  roles:
+    - ansible-role-apache-tomcat

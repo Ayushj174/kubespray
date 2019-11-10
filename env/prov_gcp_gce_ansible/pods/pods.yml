@@ -1,0 +1,11 @@
+---
+- hosts: kube-master
+
+  remote_user: ayush
+  tasks:
+  - name: copy the script
+    copy:
+      src: /home/ayush/env/prov_gcp_gce_ansible/pods/pods.sh
+      dest: /home/ayush
+  - name: Create deploy env
+    shell: sh /home/ayush/pods.sh

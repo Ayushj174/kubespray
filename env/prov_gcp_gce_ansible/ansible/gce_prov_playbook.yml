@@ -1,0 +1,59 @@
+---
+### provision GCP GCE instances
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  user: root
+  pre_tasks:
+    - include_vars: variables.yml
+
+  tasks:
+    - name: Cretae master environment
+      gce:
+        instance_names: master1
+        zone: "{{ gce_zone }}"
+        machine_type: "{{ gce_machine_type }}"
+        image: "{{ gce_image }}"
+        tags: ["{{ gce_tag_Role }}"]
+        num_instances: "{{ gce_count | int }}"
+        disk_size: "{{ gce_volume_size | int }}"
+        service_account_email: "{{ GCE_EMAIL }}"
+        credentials_file: "{{ GCE_CREDENTIALS_FILE_PATH }}"
+        project_id: "{{ GCE_PROJECT }}"
+      register: gce
+
+    - name: Save host data
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: gce_instances_ips
+      with_items: "{{ gce.instance_data }}"
+
+    - name: Wait for SSH for instances
+      wait_for:
+        delay: 1
+        host: "{{ item.public_ip }}"
+        port: 22
+        state: started
+        timeout: 30
+      with_items: "{{ gce.instance_data }}"
+
+    # update shippable resource state
+   # - name: run cmd
+   #   type: runSh
+   #     shell: 
+   #       shipctl put_resource_state_multi "{{ STATE_RES_NAME }}" "INST_{{ item.0 }}_PUBLIC_IP={{ item.1.public_ip }}" "gce_tag_Role={{ gce_tag_Role }}" "gce_name={{ gce_name }}" "gce_zone={{ gce_zone }}"
+    #  with_indexed_items: "{{ gce.instance_data }}"
+    - name: Create slave environment
+      shell: ansible-playbook gce_prov_slave_playbook.yml
+    - name: Create etcd environment
+      shell: ansible-playbook gce_prov_etcd_playbook.yml
+    - name: create dynamic inventory
+      shell: sh /home/ayush/env/prov_gcp_gce_ansible/ansible/inventory/inventory.sh
+    - name: Stopped firewalld and sestatus
+      shell: ansible-playbook -i /home/ayush/kubespray/inventory/mycluster/inventory.ini pre.yml
+   
+    - name: create kubespray cluster
+      shell: ansible-playbook -i /home/ayush/kubespray/inventory/mycluster/inventory.ini --become --become-user=root /home/ayush/kubespray/cluster.yml
+    - name: Deployment application
+      shell: ansible-playbook -i /home/ayush/kubespray/inventory/mycluster/inventory.ini /home/ayush/env/prov_gcp_gce_ansible/pods/pods.yml
+

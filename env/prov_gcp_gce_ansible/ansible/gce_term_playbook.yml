@@ -1,0 +1,22 @@
+---
+### terminate GCP GCE instance
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  user: root
+  pre_tasks:
+    - include_vars: variables.yml
+  tasks:
+    - name: delete instances
+      # Basic termination of instance.
+      gce:
+        service_account_email: "{{ GCE_EMAIL }}"
+        credentials_file: "{{ GCE_CREDENTIALS_FILE_PATH }}"
+        project_id: "{{ GCE_PROJECT }}"
+        tags: "{{ gce_tag_Role }}"
+        zone: "{{ gce_zone }}"
+        instance_names: "{{ gce_name }}"
+        state: absent
+      tags:
+        - delete
+

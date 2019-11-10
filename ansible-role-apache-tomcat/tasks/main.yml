@@ -1,0 +1,14 @@
+---
+# tasks file for ansible-role-apache-tomcat
+#- hosts: suse
+#  become: yes
+- name: Check java installed or not
+  command: java -version
+  register: java_result
+  ignore_errors: True
+- name: Install java if not installed
+  yum:
+    name: "{{ java_package }}"
+    state: present
+  when: java_result is failed
+- include: /home/ayush/test/ansible-role-apache-tomcat/tasks/tomact.yml

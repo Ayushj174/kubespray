@@ -1,0 +1,9 @@
+---
+plugin: gcp_compute
+projects:
+  - My First Project 
+zones:
+  - "us-east1-b"
+filters: []
+auth_kind: 684540600265-compute@developer.gserviceaccount.com
+service_account_file: /kubespray/kubespray/inventory/mycluster/group_vars/k8s-cluster/credential.json
